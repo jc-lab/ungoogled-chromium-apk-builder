@@ -1,0 +1,532 @@
+# Contributor: Carlo Landmeter <clandmeter@alpinelinux.org>
+# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+pkgname=chromium
+pkgver=90.0.4430.93
+pkgrel=0
+pkgdesc="Chromium web browser"
+url="https://www.chromium.org/Home"
+arch="aarch64 x86_64"	# x86: ./v8_context_snapshot_generator segfaults
+license="BSD-3-Clause"
+makedepends="
+	alsa-lib-dev
+	bash
+	bison flex
+	bsd-compat-headers
+	bzip2-dev
+	cairo-dev
+	clang-dev
+	cups-dev
+	dbus-glib-dev
+	elfutils-dev
+	eudev-dev
+	ffmpeg-dev
+	findutils
+	flac-dev
+	freetype-dev
+	gnutls-dev
+	gperf
+	gtk+3.0-dev
+	gzip
+	harfbuzz-dev
+	hunspell-dev
+	hwids-usb
+	jpeg-dev
+	jsoncpp-dev
+	krb5-dev
+	lcms2-dev
+	libbsd-dev
+	libcap-dev
+	libevent-dev
+	libexif-dev
+	libgcrypt-dev
+	libgnome-keyring-dev
+	libjpeg-turbo-dev
+	libpng-dev
+	libusb-dev
+	libva-dev
+	libwebp-dev
+	libxcomposite-dev
+	libxcursor-dev
+	libxinerama-dev
+	libxml2-dev
+	libxrandr-dev
+	libxscrnsaver-dev
+	libxslt-dev
+	linux-headers
+	lld
+	mesa-dev
+	minizip-dev
+	ninja
+	nodejs
+	nss-dev
+	java-jdk
+	opus-dev
+	pciutils-dev
+	perl
+	python2
+	re2-dev
+	snappy-dev
+	speex-dev
+	sqlite-dev
+	xcb-proto
+	xdg-utils
+	zlib-dev
+	py2-setuptools
+	"
+# explicit depends for --headless
+#depends="xdg-utils eudev-libs ttf-opensans"
+depends="ttf-opensans"
+options="suid"
+subpackages="$pkgname-chromedriver $pkgname-lang $pkgname-swiftshader $pkgname-angle"
+
+[ -z "$_chromium_src_mirror" ] && _chromium_src_mirror=https://commondatastorage.googleapis.com/chromium-browser-official/
+
+ungoogled_chromium_archive=ungoogled-chromium-90.0.4430.93-1.tar.gz
+
+source="${_chromium_src_mirror}chromium-$pkgver.tar.xz
+	${ungoogled_chromium_archive}
+
+	pstables-2.8.h::https://git.savannah.gnu.org/cgit/freetype/freetype2.git/plain/src/psnames/pstables.h?h=VER-2-8
+	chromium-launcher.sh
+	chromium.conf
+	chromium.desktop
+	google-api.keys
+
+	default-pthread-stacksize.patch
+	musl-fixes.patch
+	musl-fixes-breakpad.patch
+	musl-hacks.patch
+	musl-libc++.patch
+	musl-sandbox.patch
+	no-execinfo.patch
+	no-mallinfo.patch
+	resolver.patch
+	swiftshader.patch
+
+	chromium-use-alpine-target.patch
+	media-base.patch
+	musl-crashpad.patch
+	musl-v8-monotonic-pthread-cont_timedwait.patch
+	nasm.patch
+
+	gcc-fno-delete-null-pointer-checks.patch
+	gcc-arm.patch
+	aarch64-fixes.patch
+	elf-arm.patch
+
+	remove-unsupported-attribute.patch
+	fix-missing-includes.patch
+
+	disable-floc-component.patch
+	"
+
+# secfixes:
+#   90.0.4430.72-r0:
+#     - CVE-2021-21201
+#     - CVE-2021-21202
+#     - CVE-2021-21203
+#     - CVE-2021-21204
+#     - CVE-2021-21205
+#     - CVE-2021-21221
+#     - CVE-2021-21207
+#     - CVE-2021-21208
+#     - CVE-2021-21209
+#     - CVE-2021-21210
+#     - CVE-2021-21211
+#     - CVE-2021-21212
+#     - CVE-2021-21213
+#     - CVE-2021-21214
+#     - CVE-2021-21215
+#     - CVE-2021-21216
+#     - CVE-2021-21217
+#     - CVE-2021-21218
+#     - CVE-2021-21219
+#   89.0.4389.128-r0:
+#     - CVE-2021-21206
+#     - CVE-2021-21220
+#   89.0.4389.114-r0:
+#     - CVE-2021-21194
+#     - CVE-2021-21195
+#     - CVE-2021-21196
+#     - CVE-2021-21197
+#     - CVE-2021-21198
+#     - CVE-2021-21199
+#   89.0.4389.90-r0:
+#     - CVE-2021-21191
+#     - CVE-2021-21192
+#     - CVE-2021-21193
+#   89.0.4389.72-r0:
+#     - CVE-2021-21158
+#     - CVE-2021-21159
+#     - CVE-2021-21160
+#     - CVE-2021-21161
+#     - CVE-2021-21162
+#     - CVE-2021-21163
+#     - CVE-2021-21164
+#     - CVE-2021-21165
+#     - CVE-2021-21166
+#     - CVE-2021-21167
+#     - CVE-2021-21168
+#     - CVE-2021-21169
+#     - CVE-2021-21170
+#     - CVE-2021-21171
+#     - CVE-2021-21172
+#     - CVE-2021-21173
+#     - CVE-2021-21174
+#     - CVE-2021-21175
+#     - CVE-2021-21176
+#     - CVE-2021-21177
+#     - CVE-2021-21178
+#     - CVE-2021-21179
+#     - CVE-2021-21180
+#     - CVE-2020-27844
+#     - CVE-2021-21181
+#     - CVE-2021-21182
+#     - CVE-2021-21183
+#     - CVE-2021-21184
+#     - CVE-2021-21185
+#     - CVE-2021-21186
+#     - CVE-2021-21187
+#     - CVE-2021-21188
+#     - CVE-2021-21189
+#     - CVE-2021-21190
+#   83.0.4103.116-r0:
+#     - CVE-2020-6505
+#     - CVE-2020-6506
+#     - CVE-2020-6507
+#     - CVE-2020-6509
+#   72.0.3626.121-r0:
+#     - CVE-2019-5786
+
+if [ -n "$DEBUG" ]; then
+	_buildtype=Debug
+	_is_debug=true
+else
+	_buildtype=Release
+	_is_debug=false
+fi
+
+prepare() {
+	patch_args="-p0"
+	default_prepare
+	
+	msg "ungoogle"
+	tar --strip-components 1 -xf "${srcdir}/${ungoogled_chromium_archive}"
+	./utils/prune_binaries.py "$srcdir"/"chromium-$pkgver" pruning.list
+	./utils/patches.py apply "$srcdir"/"chromium-$pkgver" patches
+
+
+	cd "$srcdir"/"chromium-$pkgver"
+
+	# https://groups.google.com/a/chromium.org/d/topic/chromium-packagers/9JX1N2nf4PU/discussion
+	touch chrome/test/data/webui/i18n_process_css_test.html
+	# Use the file at run time instead of effectively compiling it in
+	sed 's|//third_party/usb_ids/usb.ids|/usr/share/hwdata/usb.ids|g' \
+		-i services/device/public/cpp/usb/BUILD.gn
+
+	mkdir -p third_party/node/linux/node-linux-x64/bin
+	ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
+
+	# reusable system library settings
+	local use_system="
+		ffmpeg
+		flac
+		fontconfig
+		freetype
+		harfbuzz-ng
+		libdrm
+		libevent
+		libjpeg
+		libpng
+		libwebp
+		libxml
+		libxslt
+		opus
+		re2
+		snappy
+		"
+	for _lib in $use_system libjpeg_turbo; do
+		msg "Removing buildscripts for system provided $_lib"
+		find -type f -path "*third_party/$_lib/*" \
+			\! -path "*third_party/$_lib/chromium/*" \
+			\! -path "*third_party/$_lib/google/*" \
+			\! -path './base/third_party/icu/*' \
+			\! -path './third_party/libxml/*' \
+			\! -path './third_party/pdfium/third_party/freetype/include/pstables.h' \
+			\! -path './third_party/harfbuzz-ng/utils/hb_scoped.h' \
+			\! -regex '.*\.\(gn\|gni\|isolate\|py\)' \
+			-delete
+	done
+
+	msg "Replacing gn files"
+	python2 build/linux/unbundle/replace_gn_files.py --system-libraries \
+		$use_system
+	third_party/libaddressinput/chromium/tools/update-strings.py
+
+}
+
+_gn_flags() {
+	echo $*
+}
+
+prepare_clang() {
+	cd "$srcdir"/"chromium-$pkgver"
+	msg "build clang"
+	python2 ./tools/clang/scripts/build.py --without-android --without-fuchsia
+	(cd tools/clang/plugins/tests && \
+	./test.py ../../../../third_party/llvm-build/Release+Asserts/bin/clang \
+	../../../../third_party/llvm-build/Release+Asserts/lib/libFindBadConstructs.so)
+	mkdir -p icecc-files
+	CLANG_BIN=$PWD/third_party/llvm-build/Release+Asserts/bin/clang
+	(cd icecc-files && icecc-create-env --clang $CLANG_BIN /usr/libexec/icecc/compilerwrapper | tee /tmp/clang-icecc-create-env.out)
+	GENERATED_FILE_NAME=$(cat /tmp/clang-icecc-create-env.out | grep creating | cut -d' ' -f2)
+	echo "export ICECC_VERSION=$HOME/work/icecc-files/${GENERATED_FILE_NAME}" | tee icecc-build-envs
+}
+
+build() {
+	##############################################################
+	# Please dont use these keys outside of Alpine Linux project #
+	# You can create your own at:                                #
+	# http://www.chromium.org/developers/how-tos/api-keys        #
+	##############################################################
+	eval "$(base64 -d < $srcdir/google-api.keys)"
+
+	mkdir -p out/$_buildtype
+	if [ "${USE_BUILD_TMPFS}" = "y" ]; then
+		[ -n "$(which mount || echo '')" ] && $(which sudo || echo "") mount -t tmpfs -o uid=$(id -u),gid=$(id -g) tmpfs out/$_buildtype && echo "Mounted the build directory as tmpfs" || echo "Failed to tmpfs mount the build directory"
+	fi
+
+	msg "Bootstrapping GN"
+
+#	AR="ar" CC="${CC:-gcc}" CXX="${CXX:-g++}" LD="${CXX:-g++}" \
+	AR="ar" CC="ccache ${CC:-clang}" CXX="ccache ${CXX:-clang++}" LD="${CXX:-clang++}" \
+		python2 tools/gn/bootstrap/bootstrap.py -s -v --skip-generate-buildfiles
+	
+	msg "Configuring build"
+
+	local _c _ca
+	_c=$(_gn_flags \
+		blink_symbol_level=0 \
+		clang_use_chrome_plugins=false \
+		custom_toolchain=\"//build/toolchain/linux/unbundle:default\" \
+		enable_nacl_nonsfi=false \
+		enable_nacl=false \
+		enable_precompiled_headers=false \
+		fatal_linker_warnings=false \
+		ffmpeg_branding=\"Chrome\" \
+		fieldtrial_testing_like_official_build=true \
+		gold_path=\"/usr/bin/ld.gold\" \
+		google_api_key=\"$_google_api_key\" \
+		google_default_client_id=\"$_google_default_client_id\" \
+		google_default_client_secret=\"$_google_default_client_secret\" \
+		host_toolchain=\"//build/toolchain/linux/unbundle:default\" \
+		icu_use_data_file=true \
+		use_debug_fission=false \
+		is_clang=true \
+		is_component_build=false \
+		is_debug=$_is_debug \
+		proprietary_codecs=true \
+		symbol_level=0 \
+		treat_warnings_as_errors=false \
+		use_allocator_shim=false \
+		use_allocator=\"none\" \
+		use_cups=false \
+		use_custom_libcxx=false \
+		use_gnome_keyring=false \
+		use_gold=false \
+		use_lld=true \
+		use_pulseaudio=false \
+		use_sysroot=false \
+		use_system_harfbuzz=true \
+		use_system_freetype=true \
+		use_system_harfbuzz=true \
+		use_system_libdrm=true \
+		use_system_libjpeg=true \
+		use_system_libpng=true \
+		use_system_lcms2=true \
+		use_system_zlib=true \
+		build_with_tflite_lib=false \
+		enable_vr=false \
+		cc_wrapper=\"ccache\" \
+		use_ozone=true \
+		use_x11=false \
+		linux_use_bundled_binutils=false \
+		linux_use_debug_fission=false \
+		use_alsa=true use_pulseaudio=false \
+		safe_browsing_mode=0 \
+		chrome_pgo_phase=0 \
+		enable_hangout_services_extension=false \
+		enable_js_type_check=false \
+		enable_mdns=false \
+		enable_one_click_signin=false \
+		enable_reading_list=false \
+		enable_remoting=false \
+		enable_reporting=false \
+		enable_service_discovery=false \
+	)
+
+	case $CARCH in
+		x86*|aarch64) _ca="use_vaapi=true" ;;
+		*) _ca="concurrent_links=1" ;;
+	esac
+
+	AR="ar" CC="clang" CXX="clang++" LD="clang++" NM=/usr/bin/nm \
+		out/Release/gn gen out/$_buildtype --args="$_c $_ca"
+
+	# Make xcbgen available to ui/gfx/x/gen_xproto.py running under Python 2
+	ln -sf /usr/lib/python3.*/site-packages/xcbgen .
+	export PYTHONPATH="$PWD"
+
+	msg "Ninja turtles GO!"
+
+	# build mksnapshot
+	ninja -j 16 -C out/$_buildtype mksnapshot
+	ninja -j 16 -C out/$_buildtype v8_context_snapshot_generator
+
+	if [ "$CARCH" = "x86" ]; then
+		# x86 only - dependency issues compiling obj/chrome/browser/devtools/devtools/cast_handler.o
+		ninja -j 16 -C out/$_buildtype obj/chrome/common/media_router/mojom/media_router__generator.stamp
+	fi
+
+	# final link needs lots of file descriptors
+	ulimit -n 2048
+
+	# finish rest of the build
+	ninja -j 16 -C out/$_buildtype chrome chrome_sandbox chromedriver
+	
+	# strip debug information
+	objcopy --only-keep-debug "out/$_buildtype/chrome" "out/$_buildtype/chrome.debug"
+	strip --strip-debug --strip-unneeded "out/$_buildtype/chrome"
+	(cd out/$_buildtype && objcopy --add-gnu-debuglink="chrome.debug" "chrome")
+}
+
+package() {
+	cd "$builddir"/out/$_buildtype
+
+	# binaries
+	install -Dm755 chrome "$pkgdir"/usr/lib/$pkgname/chrome
+	install -Dm4755 chrome_sandbox "$pkgdir"/usr/lib/$pkgname/chrome-sandbox
+
+	# resources
+	install -Dm644 snapshot_blob.bin "$pkgdir"/usr/lib/$pkgname/
+	install -Dm644 v8_context_snapshot.bin "$pkgdir"/usr/lib/$pkgname/
+
+	install -m644 icudtl.dat "$pkgdir"/usr/lib/$pkgname/icudtl.dat
+
+	#install -Dm755 xdg-mime "$pkgdir"/usr/lib/$pkgname/xdg-mime
+	#install -Dm755 xdg-settings "$pkgdir"/usr/lib/$pkgname/xdg-settings
+
+	local pak
+	for pak in *.pak; do
+		install -Dm644 $pak "$pkgdir"/usr/lib/$pkgname/$pak
+	done
+
+	install -Dm755 "$srcdir"/chromium-launcher.sh \
+		"$pkgdir"/usr/lib/$pkgname/chromium-launcher.sh
+
+	# cp -a MEIPreload "$pkgdir"/usr/lib/$pkgname/
+
+	# Default to en-us and provide everything else through the chromium-lang package
+	install -Dm644 locales/en-US.pak "$pkgdir"/usr/lib/$pkgname/locales/en-US.pak
+
+	# It is important that we name the target "chromium-browser",
+	# xdg-utils expect it; bug #355517.
+	mkdir -p "$pkgdir"/usr/bin
+	ln -sf /usr/lib/$pkgname/chromium-launcher.sh "$pkgdir"/usr/bin/chromium-browser
+
+	install -Dm644 "$srcdir"/chromium.conf \
+		"$pkgdir"/etc/chromium/chromium.conf
+
+	install -Dm644 "$srcdir"/chromium.desktop \
+		"$pkgdir"/usr/share/applications/chromium.desktop
+
+	cd "$builddir"
+	for size in 24 48 64 128 256; do
+		install -Dm644 "chrome/app/theme/chromium/product_logo_$size.png" \
+			"$pkgdir/usr/share/icons/hicolor/"$size"x"$size"/apps/chromium.png"
+	done
+
+	for size in 16 32; do
+		install -Dm644 "chrome/app/theme/default_100_percent/chromium/product_logo_$size.png" \
+			"$pkgdir/usr/share/icons/hicolor/"$size"x"$size"/apps/chromium.png"
+	done
+}
+
+chromedriver() {
+	pkgdesc="WebDriver driver for the Chromium Browser"
+	depends="$pkgname=$pkgver-r$pkgrel"
+
+	cd "$builddir"/out/$_buildtype
+
+	mkdir -p "$subpkgdir"/usr/lib/$pkgname "$subpkgdir"/usr/bin
+
+	install -Dm755 chromedriver "$subpkgdir"/usr/lib/$pkgname/chromedriver
+	ln -sf /usr/lib/$pkgname/chromedriver "$subpkgdir"/usr/bin/
+}
+
+lang() {
+	pkgdesc="Languages for package $pkgname"
+	install_if="$pkgname=$pkgver-r$pkgrel lang"
+
+	cd "$builddir"/out/$_buildtype
+
+	for pak in locales/*.pak; do
+		install -Dm644 "$pak" "$subpkgdir"/usr/lib/$pkgname/"$pak"
+	done;
+
+	rm "$subpkgdir"/usr/lib/$pkgname/locales/en-US.pak
+}
+
+swiftshader() {
+	pkgdesc="Chromium web browser: CPU-based implementation of the Vulkan graphics API"
+	depends="$pkgname-angle=$pkgver-r$pkgrel"
+
+	cd "$builddir"/out/$_buildtype
+
+	install -Dm755 swiftshader/libEGL.so \
+		"$subpkgdir"/usr/lib/$pkgname/swiftshader/libEGL.so
+	install -Dm755 swiftshader/libGLESv2.so \
+		"$subpkgdir"/usr/lib/$pkgname/swiftshader/libGLESv2.so
+}
+
+angle() {
+	pkgdesc="Chromium web browser: ANGLE based hardware acceleration"
+	depends=""
+
+	cd "$builddir"/out/$_buildtype
+
+	install -Dm755 libEGL.so "$subpkgdir"/usr/lib/$pkgname/libEGL.so
+	install -Dm755 libGLESv2.so "$subpkgdir"/usr/lib/$pkgname/libGLESv2.so
+}
+
+sha512sums="
+c409df621ec849bcfd5c9f6dbeeddde86e75e54be8f8d51a73daf69a216f4c26b083d32e5f5b9f0c7baf833c495322fb2543d1565cddd6f0b8f914db14a13d4e  chromium-90.0.4430.93.tar.xz
+9912ac47792763a6e4351ca46fc785ad331798f3fd373a9229e0a21c78638e4014b68750a5f0af36bb257cb97ddfb52cb5a53fb8585ac918e77c79a7c64f3db5  ungoogled-chromium-90.0.4430.93-1.tar.gz
+a3bb959c65944ae2fb765725cedcffd743a58bc0c2cd1f1999d15fe79801d00f3474b08b4ed7b48859ed921eb57093d0ad09d90f201d729ed9b8a419a591ed29  pstables-2.8.h
+b9a810416dd7a8ffc3a5ced85ad9acebda1665bd08a57eec7b189698cc5f74d2c3fd69044e20fcb83297a43214b2772a1312b2c6122ea0eb716abacf39524d60  chromium-launcher.sh
+f6d962b9e4c22dd42183df3db5d3202dab33eccecafb1bf63ca678147289581262db1e5e64cbe8f9c212beefb0a6717bb8d311e497f56b55fe95b8bab2db493f  chromium.conf
+e182c998a43d22d1c76a86c561619afd1fca8c2be668265ad5e2f81a3806f7a154272cc027a2f8b370fb69446892c69e5967a4be76082325c14245ee7915234c  chromium.desktop
+2d8237a940ea691bd10b08315429677a587f7ef9692a0cca53bfd066eae82998a6c71f402a8669e9de39f94d7f3280745d1628ea6eac5d76ca7116844d4e0dac  google-api.keys
+b726ef2ecfe7d471e60d67de1e05847d214df6093b41bb2055652a9028327af19a8b10e7175467240f4dfec9e3ae97a6c4666bfd2cd6cb436c54656a085653ae  default-pthread-stacksize.patch
+eb37a1a2c9d7988d853c0635eb57cfacac5a50c3f32aa9378f78b12e8c2a283f1c6b4655620d377f14eb0d12dbd8dca69530fdc5297fb8854bfffc1222468cd0  musl-fixes.patch
+e8675aff9fccd8b58cc839ef1d9e0e022d66aa94f72baa72e7acf92ceb2691f6a7907cc60ec3a87f894efdd639a3dec7fe702c97d446fcdea99452caec57e002  musl-fixes-breakpad.patch
+2d27aa2ee872fb9667215e0bbf0b0c7714d87cf632ca888926765509c3a5cfc5a615cc8a39cdb47b2928a2734dc16cccbbf8f83b95f72e05dfc034dbf08db9e9  musl-hacks.patch
+919f13a2cd65673f267321cf95c5410e65bc5264d6704d0791b25d39111282bedb425bd9824dde3b67422cfb874c86a9383ded686e39cfd4aac239edaf41cfc8  musl-libc++.patch
+ef43fa90b05e2407b6daa822193121cdeef6ee9068175572f0928f156f186be9c77539dfa06863adfaa25afd498ec1b5081f9e476543616f9472b9033fd921dc  musl-sandbox.patch
+7c40818a919d0dd0fe57c3af3be59ad8b2726167b4f6bca152c24a5c2bf8fe8a063dcb63cc6685a8f38eea4a2e8c5fe9170150fcb9875c116fa975838cc9593c  no-execinfo.patch
+55d396e02bbbff5f63c9737988758af50a2525cebbacccdbe882d0c657fc010284688d7954679af79da0284e77a21d9c98c548a50952b06e499c03f0f0a50465  no-mallinfo.patch
+f60c89076bbc458e2e38d9dad26027f9604179fd59e0c2b988a86340b9ef78a4c346c84ac3e7e4e70badaff69d71edf49d7b9030e5fadb96afde4f977a98c412  resolver.patch
+f4265df7532625070c51ac43466e3e0f21e696f90c3b6040ef62a21defa7666203ff8219d9c9a5bebc011024aff300fbcbd941cebd0df59c4bc068d8f290221e  swiftshader.patch
+cf9970ef403ff7a68bf08c0ba5e681eec459fcb1afb6859e5a80f4874f1b9a656377b4540eeb5208ddec570efa206f147e32718c687fa29ca3acc4fde6e8cbe8  chromium-use-alpine-target.patch
+599f5ef338b5797e04436bdc88921c31365d2dea2613d40053be6e774f654e2889efb0c0bd55c2c5044a6805510fbc337da555971169a75d584fac93e18256ac  media-base.patch
+2e5a83826239849d096aead033eb519338b84e6fbbf58abfcd7cfe40d0b3070b66bcc825ec84406484d73d1a333f1b9d23a8ab44987ab5c8b187076c84cd668b  musl-crashpad.patch
+556cc2ba28184a75745f13c673605327f5be590be179eb3f941dc0abded854a814e5da1432a28fb8d4dcdcd66ffd4c94ee1a8824d2cd93b632f48e9310dbc3fa  musl-v8-monotonic-pthread-cont_timedwait.patch
+7957aae04e8ef3badbc98c982ba1acb1b9ef5e665440116c704512f11554d7b64ba3643b7ff7d00476a6686324033b0cf762deb78ce798619226380953b9dc9c  nasm.patch
+56a357668c0928bc488ccec8f53fd37fccbaefe0a185ceaf067c8c39e0fae3d2b61ca010ccabc785bec0f2e86b19f37cebb3ac344225aa8d7651c822e48c6064  gcc-fno-delete-null-pointer-checks.patch
+ad4ddc25df7aa1de2038b7adb86d27679ecdb7e3e16c0eec994e947a08c41504b6fb41166f7868ff5f58ce8191c78800cbb91d259c864840fa5af1d7ba5d43a1  gcc-arm.patch
+cc67d2a77910663e5a1ad5f66606ee2544867aa1fef25e1a1bc355a8db765d5928edb72f158e6a2ece4195c9b62b875dcdcab4e4055e7611edab405e8cfd658e  aarch64-fixes.patch
+9b1441fe42421ef9ead86a5143bf997d989bd53a8969cdfdf4e0c45f847efc8c1d127e15fb05e2ef5dbefbb228cbdc2849404d74997ca56265599e12e5efd6e4  elf-arm.patch
+1ee28b91e20ff481cf6faa95039fd3ed325c77437ee76cb0dc3df9ea62ca89894214b5e38cc3089178afa7df7bac889f031c346b59637efb3a204657f00592d5  remove-unsupported-attribute.patch
+f59c928e319675336464570b3c8ab9045e729d0d11486329767c8008c3dd156e830df599762dc12fb7fab4a5c057dadc4350f86ecdd5a0eed957d84f7b80938e  fix-missing-includes.patch
+f2291a1fb233615cf0eb2e1fac61307a8e6dc1981eb60f3f4f91e4318dfbc2ce8d96660cd355d397882b06fe4d66a091247c9affc30e19d17190cfe3ac155352  disable-floc-component.patch
+"
