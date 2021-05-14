@@ -24,7 +24,7 @@ abuild -d build check_fakeroot rootpkg
 
 if [ -n "${OUTPUT_COPY_DIRECTORY:-}" ]; then
 	cat <<EOF | tee /tmp/copy-output-files.sh
-(cd $HOME/work/ && tar -cvf "${OUTPUT_COPY_DIRECTORY}/packages.tar" *)
+(cd $HOME/packages/work/ && tar -cvf "${OUTPUT_COPY_DIRECTORY}/packages.tar" *)
 (cd $HOME/work/apkbuild-chromium/src/chromium-*/out/Release && cp chrome.debug ${OUTPUT_COPY_DIRECTORY}/)
 EOF
 	chmod +x /tmp/copy-output-files.sh
